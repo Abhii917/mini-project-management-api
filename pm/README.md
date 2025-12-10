@@ -1,88 +1,120 @@
-I cannot directly generate and attach a downloadable .pdf file in this chat interface. However, I have formatted the documentation below so you can easily create the PDF yourself.
+# Mini Project Management API 🚀
 
-Option 1: The Quickest Way
+Welcome to the **Mini Project Management API**. This is a RESTful backend application designed to help users manage projects and their associated tasks efficiently. 
 
-Copy the text between the lines below.
+It provides a secure and scalable foundation for project tracking, featuring User Authentication (JWT), comprehensive CRUD operations for Projects and Tasks, and search capabilities.
 
-Paste it into Microsoft Word or Google Docs.
+---
 
-Save/Export as PDF.
+## 🛠️ Tech Stack
+This project was built using the following technologies:
+* **Java 17**
+* **Spring Boot 3.x** (Web, Data JPA, Security, Validation)
+* **H2 Database** (In-memory database for rapid testing)
+* **JWT (JSON Web Tokens)** for secure authentication
+* **Maven** for dependency management
 
-Mini Project Management API - Documentation
-1. Setup Instructions
-   Prerequisites
+---
 
-Java: JDK 17 or higher
+## ⚙️ Getting Started
 
-Build Tool: Maven 3.6+
+Follow these instructions to get the project up and running on your local machine.
 
-How to Run the Application
+### Prerequisites
+Ensure you have the following installed:
+* **Java JDK 17** or higher
+* **Maven 3.6+**
 
-Open a terminal in the project root directory.
+### How to Run
+1.  **Clone the repository** (or download the source code).
+2.  Open your terminal in the project root directory.
+3.  Run the application using the Maven wrapper:
+    ```bash
+    mvn spring-boot:run
+    ```
+4.  Once started, the server will be live at: `http://localhost:8080`
 
-Run the application using Maven:
+---
 
-Bash
+## 🗄️ Database & Schema
 
-mvn spring-boot:run
-The server will start at http://localhost:8080.
+The application uses an **H2 In-Memory Database**, meaning you don't need to install MySQL or PostgreSQL to run it. The database is created automatically when the app starts.
 
-Database Access (H2 Console) The application uses an in-memory database. You can view the data while the app is running.
+### Accessing the Database Console
+You can view the live data tables while the application is running:
+* **URL:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+* **Driver Class:** `org.h2.Driver`
+* **JDBC URL:** `jdbc:h2:mem:pmdb`
+* **User Name:** `sa`
+* **Password:** `password`
 
-URL: http://localhost:8080/h2-console
+### Database Structure
+The system consists of three main tables:
 
-Driver Class: org.h2.Driver
+**1. Table: `_user`**
+Stores user credentials for authentication.
+* `id` (PK): Unique identifier.
+* `email`: User's unique email address.
+* `password`: Securely encrypted password (BCrypt).
 
-JDBC URL: jdbc:h2:mem:pmdb
+**2. Table: `project`**
+Represents a project created by a user.
+* `id` (PK): Unique project identifier.
+* `name`: The name of the project.
+* `description`: A brief summary of the project.
+* `created_at`: Timestamp of creation.
+* `user_id` (FK): Links the project to its owner.
 
-User Name: sa
+**3. Table: `task`**
+Represents individual tasks within a specific project.
+* `id` (PK): Unique task identifier.
+* `title`: The name of the task.
+* `description`: Detailed task information.
+* `status`: (PENDING, IN_PROGRESS, COMPLETED).
+* `priority`: (LOW, MEDIUM, HIGH).
+* `due_date`: Deadline for the task.
+* `project_id` (FK): Links the task to a specific Project.
 
-Password: password
+---
 
-2. Database Schema
-   The database consists of three relational tables.
+## 🔌 API Endpoints
 
-Table: _user
+**Base URL:** `http://localhost:8080/api`
 
-id (BigInt, PK): Unique user identifier.
+### 🔐 Authentication
+*No authentication required for these endpoints.*
 
-email (Varchar): User email (Must be unique).
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| **POST** | `/auth/register` | Register a new user account |
+| **POST** | `/auth/login` | Login with credentials to receive a **JWT Token** |
 
-password (Varchar): BCrypt encrypted password.
+### 📂 Projects
+*Requires `Authorization: Bearer <token>` header.*
 
-Table: project
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| **POST** | `/projects` | Create a new project |
+| **GET** | `/projects` | View all projects created by the logged-in user |
+| **GET** | `/projects/{id}` | Get details of a specific project |
+| **PUT** | `/projects/{id}` | Update a project's name or description |
+| **DELETE** | `/projects/{id}` | Delete a project (and all its tasks) |
 
-id (BigInt, PK): Unique project identifier.
+### ✅ Tasks
+*Requires `Authorization: Bearer <token>` header.*
 
-name (Varchar): Name of the project.
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| **POST** | `/projects/{id}/tasks` | Add a new task to a specific project |
+| **GET** | `/projects/{id}/tasks` | View all tasks within a project |
+| **PUT** | `/tasks/{id}` | Update task details (Status, Priority, Due Date) |
+| **DELETE** | `/tasks/{id}` | Remove a task |
+| **GET** | `/tasks/search` | Search tasks by keyword (e.g., `?keyword=design`) |
 
-description (Varchar): Short description.
+---
 
-created_at: Timestamp of creation.
-
-user_id (BigInt, FK): Foreign key linking to the User who owns the project.
-
-Table: task
-
-id (BigInt, PK): Unique task identifier.
-
-title (Varchar): Task title.
-
-description (Varchar): Task details.
-
-status (Enum): PENDING, IN_PROGRESS, COMPLETED.
-
-priority (Enum): LOW, MEDIUM, HIGH.
-
-due_date: Deadline timestamp.
-
-project_id (BigInt, FK): Foreign key linking to the Project.
-
-3. API Endpoints
-   Base URL: http://localhost:8080/api
-
-Authentication | Method | Endpoint | Description | Auth Required | | :--- | :--- | :--- | :--- | | POST | /auth/register | Register a new user | No | | POST | /auth/login | Login and receive JWT Token | No |
-
-Projects | Method | Endpoint | Description | Auth Required | | :--- | :--- | :--- | :--- | | POST | /projects | Create a new project | Yes | | GET | /projects | List all projects belonging to the user | Yes | | GET | /projects/{id} | Get details of a specific project | Yes | | PUT | /projects/{id} | Update project details | Yes | | DELETE | /projects/{id} | Delete a project | Yes |
-
-Tasks | Method | Endpoint | Description | Auth Required | | :--- | :--- | :--- | :--- | | POST | /projects/{id}/tasks | Create a new task inside a project | Yes | | GET | /projects/{id}/tasks | List all tasks for a specific project | Yes | | PUT | /tasks/{id} | Update task (status, priority, etc.) | Yes | | DELETE | /tasks/{id} | Delete a task | Yes | | GET | /tasks/search | Search tasks by keyword (?keyword=xyz) | Yes |
+### 📝 Note on Security
+This API uses **Stateless JWT Authentication**. 
+1.  First, register and login via the Auth endpoints.
+2.  Copy the `token` received in the login response.
+3.  Include this token in the `Authorization` header (`Bearer <your-token>`) for all subsequent Project and Task requests.
